@@ -1,0 +1,39 @@
+{
+  "name": "tanstack-table-vue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "build": "pnpm type-check && pnpm build-only",
+    "build-only": "vite build",
+    "watch": "vite build --watch",
+    "type-check": "vue-tsc -p tsconfig.check.json --noEmit",
+    "type-gen": "vue-tsc --declaration  --emitDeclarationOnly"
+  },
+  "dependencies": {
+    "@tanstack/vue-table": "^8.21.2",
+    "lodash.capitalize": "^4.2.1",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@types/lodash.capitalize": "^4.2.9",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+    "vite-plugin-dts": "^4.5.3",
+    "vue-tsc": "^2.2.4"
+  }
+}

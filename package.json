@@ -1,0 +1,14 @@
+{
+  "name": "@dacsang97/tanstack-table-vue",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "description": "Vue TanStack Table is a wrapper library that simplifies using TanStack Table",
+  "scripts": {},
+  "author": "dacsang97",
+  "license": "MIT"
+}
