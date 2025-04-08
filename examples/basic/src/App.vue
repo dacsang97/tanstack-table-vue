@@ -1,5 +1,13 @@
 <script setup lang="ts">
 import { TSTable, defineColumns } from 'tanstack-table-vue'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 type Person = {
   firstName: string
@@ -61,24 +69,31 @@ const columns = defineColumns<Person>([
         header: 'Age'
       },
       {
-        id: 'visits',
-        header: 'Visits'
+        id: 'moreInfo',
+        header: 'More Info',
+        columns: [
+          {
+            id: 'visits',
+            header: 'Visits'
+          },
+          {
+            id: 'status',
+            header: 'Status'
+          },
+          {
+            id: 'progress',
+            header: 'Profile Progress'
+          }
+        ]
       },
     ]
   },
-  {
-    id: 'status',
-    header: 'Status'
-  },
-  {
-    id: 'progress',
-    header: 'Profile Progress'
-  }
 ])
 </script>
 
 <template>
-  <TSTable :columns="columns" :data="defaultData">
+  <TSTable :columns="columns" :data="defaultData" :tableComponent="Table" :theadComponent="TableHeader"
+    :tbodyComponent="TableBody" :trComponent="TableRow" :thComponent="TableHead" :tdComponent="TableCell">
     <template #cell-status="{ value }">
       <span class="px-2 py-1 rounded" :class="{
         'bg-green-100 text-green-700': value === 'In Relationship',
