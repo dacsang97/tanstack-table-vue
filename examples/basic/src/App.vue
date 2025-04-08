@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { TSTable, defineColumns } from 'tanstack-table-vue'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableFooter
+} from '@/components/ui/table'
 
 type Person = {
   firstName: string
@@ -61,37 +70,47 @@ const columns = defineColumns<Person>([
         header: 'Age'
       },
       {
-        id: 'visits',
-        header: 'Visits'
+        id: 'moreInfo',
+        header: 'More Info',
+        columns: [
+          {
+            id: 'visits',
+            header: 'Visits'
+          },
+          {
+            id: 'status',
+            header: 'Status'
+          },
+          {
+            id: 'progress',
+            header: 'Profile Progress'
+          }
+        ]
       },
     ]
   },
-  {
-    id: 'status',
-    header: 'Status'
-  },
-  {
-    id: 'progress',
-    header: 'Profile Progress'
-  }
 ])
 </script>
 
 <template>
-  <TSTable :columns="columns" :data="defaultData">
-    <template #cell-status="{ value }">
-      <span class="px-2 py-1 rounded" :class="{
-        'bg-green-100 text-green-700': value === 'In Relationship',
-        'bg-yellow-100 text-yellow-700': value === 'Complicated',
-        'bg-red-100 text-red-700': value === 'Single'
-      }">
-        {{ value }}
-      </span>
-    </template>
-    <template #cell-progress="{ value }">
-      <div class="w-full bg-gray-200 rounded-full h-2.5">
-        <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${value}%` }"></div>
-      </div>
-    </template>
-  </TSTable>
+  <div class="container mx-auto p-4">
+    <TSTable :columns="columns" :data="defaultData" :tableComponent="Table" :theadComponent="TableHeader"
+      :tbodyComponent="TableBody" :trComponent="TableRow" :thComponent="TableHead" :tdComponent="TableCell"
+      :tfootComponent="TableFooter">
+      <template #cell-status="{ value }">
+        <span class="px-2 py-1 rounded" :class="{
+          'bg-green-100 text-green-700': value === 'In Relationship',
+          'bg-yellow-100 text-yellow-700': value === 'Complicated',
+          'bg-red-100 text-red-700': value === 'Single'
+        }">
+          {{ value }}
+        </span>
+      </template>
+      <template #cell-progress="{ value }">
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${value}%` }"></div>
+        </div>
+      </template>
+    </TSTable>
+  </div>
 </template>

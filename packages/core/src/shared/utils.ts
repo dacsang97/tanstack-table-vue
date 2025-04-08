@@ -55,6 +55,8 @@ const getFooter = <TData extends RowData & object>(
     } as FooterSlotProps<TData>)
   }
 
+  console.log(`footer for ${col.id} is undefined`)
+
   return undefined
 }
 
