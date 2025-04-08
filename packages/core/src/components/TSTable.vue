@@ -19,7 +19,7 @@ export interface TSTableProps<TData extends object> {
 <script setup lang="ts" generic="TData extends object">
 import type { ColumnDef, HeaderSlotProps, CellSlotProps, FooterSlotProps } from '../shared/types'
 import { computed, useSlots } from 'vue'
-import { FlexRender } from '@tanstack/vue-table'
+import { FlexRender, type HeaderGroup } from '@tanstack/vue-table'
 import {
   createColumnHelper,
   useVueTable,
@@ -60,40 +60,49 @@ const table = useVueTable<TData>({
   },
   getCoreRowModel: getCoreRowModel()
 })
+
+const hasFooterGroupRows = (footerGroup: HeaderGroup<TData>) => {
+  return footerGroup.headers.some((h) =>
+    !h.isPlaceholder &&
+    h.column.columnDef.footer &&
+    typeof h.column.columnDef.footer === 'function' &&
+    h.column.columnDef.footer(h.getContext())
+  )
+}
+
+const hasFooterRows = computed(() => {
+  return table.getFooterGroups().some(footerGroup => hasFooterGroupRows(footerGroup))
+})
 </script>
 
 <template>
-  <div class="p-2">
-    <component :is="props.tableComponent">
-      <component :is="props.theadComponent">
-        <component :is="props.trComponent" v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-          <component :is="props.thComponent" v-for="header in headerGroup.headers" :key="header.id"
-            :colSpan="header.colSpan">
-            <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-              :props="header.getContext()" />
-          </component>
+  <component :is="props.tableComponent">
+    <component :is="props.theadComponent">
+      <component :is="props.trComponent" v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+        <component :is="props.thComponent" v-for="header in headerGroup.headers" :key="header.id"
+          :colSpan="header.colSpan">
+          <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+            :props="header.getContext()" />
         </component>
       </component>
-      <component :is="props.tbodyComponent">
-        <component :is="props.trComponent" v-for="row in table.getRowModel().rows" :key="row.id">
-          <component :is="props.tdComponent" v-for="cell in row.getVisibleCells()" :key="cell.id">
-            <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-          </component>
+    </component>
+    <component :is="props.tbodyComponent">
+      <component :is="props.trComponent" v-for="row in table.getRowModel().rows" :key="row.id">
+        <component :is="props.tdComponent" v-for="cell in row.getVisibleCells()" :key="cell.id">
+          <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
         </component>
       </component>
-      <component :is="props.tfootComponent" v-if="table.getFooterGroups().some(group =>
-        group.headers.some(header =>
-          !header.isPlaceholder && header.column.columnDef.footer
-        )
-      )">
-        <component :is="props.trComponent" v-for="footerGroup in table.getFooterGroups()" :key="footerGroup.id">
+    </component>
+    <component :is="props.tfootComponent" v-if="hasFooterRows">
+      <template v-for="footerGroup in table.getFooterGroups()" :key="footerGroup.id">
+        <component :is="props.trComponent" v-if="hasFooterGroupRows(footerGroup)">
           <component :is="props.thComponent" v-for="header in footerGroup.headers" :key="header.id"
             :colSpan="header.colSpan">
             <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.footer"
               :props="header.getContext()" />
           </component>
         </component>
-      </component>
+      </template>
     </component>
-  </div>
+  </component>
 </template>
