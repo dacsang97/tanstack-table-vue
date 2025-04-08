@@ -1,6 +1,6 @@
 {
   "name": "@dacsang97/tanstack-table-vue",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "private": true,
   "packageManager": "pnpm@9.15.4",
