@@ -2,7 +2,7 @@
 import { TSTable } from 'tanstack-table-vue'
 import { createColumnHelper, FlexRender, getCoreRowModel, getSortedRowModel, type Column } from '@tanstack/vue-table'
 import Table from './components/ui/table/Table.vue'
-import { TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from './components/ui/table'
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
 
 
 interface Person {
