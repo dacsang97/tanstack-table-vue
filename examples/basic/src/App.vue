@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import { TSTable, defineColumns } from 'tanstack-table-vue'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableFooter
-} from '@/components/ui/table'
+import { TSTable } from 'tanstack-table-vue'
+import { createColumnHelper, FlexRender, getCoreRowModel, getSortedRowModel, type Column } from '@tanstack/vue-table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
 
-type Person = {
+
+interface Person {
   firstName: string
   lastName: string
   age: number
@@ -46,70 +40,109 @@ const defaultData: Person[] = [
   },
 ]
 
-const columns = defineColumns<Person>([
-  {
+function getSortIcon(column: Column<Person>) {
+  if (!column.getCanSort?.()) return null
+
+  if (column.getIsSorted() === 'desc') {
+    return ' 🔽'
+  } else if (column.getIsSorted() === 'asc') {
+    return ' 🔼'
+  }
+  return ' ⏺️'
+}
+
+function getStatusClass(status: string) {
+  switch (status) {
+    case 'In Relationship':
+      return 'bg-green-100 text-green-800'
+    case 'Single':
+      return 'bg-red-100 text-red-800'
+    case 'Complicated':
+      return 'bg-yellow-100 text-yellow-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const columnHelper = createColumnHelper<Person>()
+
+const columns = [
+  columnHelper.group({
     id: 'name',
     header: 'Name',
     columns: [
-      {
-        id: 'firstName',
-        header: 'First Name'
-      },
-      {
-        id: 'lastName',
-        header: 'Last Name'
-      },
-    ]
-  },
-  {
+      columnHelper.accessor('firstName', {}),
+      columnHelper.accessor('lastName', {}),
+    ],
+  }),
+  columnHelper.group({
     id: 'info',
     header: 'Info',
     columns: [
-      {
-        id: 'age',
-        header: 'Age'
-      },
-      {
+      columnHelper.accessor('age', {}),
+      columnHelper.group({
         id: 'moreInfo',
         header: 'More Info',
         columns: [
-          {
-            id: 'visits',
-            header: 'Visits'
-          },
-          {
-            id: 'status',
-            header: 'Status'
-          },
-          {
-            id: 'progress',
-            header: 'Profile Progress'
-          }
-        ]
-      },
-    ]
-  },
-])
+          columnHelper.accessor('visits', {}),
+          columnHelper.accessor('status', {}),
+          columnHelper.accessor('progress', {}),
+        ],
+      }),
+    ],
+  }),
+]
+
+const tableOptions = {
+  getSortedRowModel: getSortedRowModel(),
+  getCoreRowModel: getCoreRowModel(),
+}
 </script>
 
 <template>
   <div class="container mx-auto p-4">
-    <TSTable :columns="columns" :data="defaultData" :tableComponent="Table" :theadComponent="TableHeader"
-      :tbodyComponent="TableBody" :trComponent="TableRow" :thComponent="TableHead" :tdComponent="TableCell"
-      :tfootComponent="TableFooter">
+    <h1 class="text-2xl font-bold mb-4">TSTable with Slots Example</h1>
+    <TSTable :columns="columns" :data="defaultData" :tableOptions="tableOptions">
+
+      <template #header-firstName="{ column }">
+        <div class="flex items-center cursor-pointer" @click="column.toggleSorting()">
+          <span class="font-bold">First Name</span>
+          <span>{{ getSortIcon(column) }}</span>
+        </div>
+      </template>
+
+      <template #header-lastName="{ column }">
+        <div class="flex items-center cursor-pointer" @click="column.toggleSorting()">
+          <span class="font-bold">Last Name</span>
+          <span>{{ getSortIcon(column) }}</span>
+        </div>
+      </template>
+
       <template #cell-status="{ value }">
-        <span class="px-2 py-1 rounded" :class="{
-          'bg-green-100 text-green-700': value === 'In Relationship',
-          'bg-yellow-100 text-yellow-700': value === 'Complicated',
-          'bg-red-100 text-red-700': value === 'Single'
-        }">
+        <span class="px-2 py-1 rounded text-xs font-medium inline-block" :class="getStatusClass(value)">
           {{ value }}
         </span>
       </template>
-      <template #cell-progress="{ value }">
-        <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${value}%` }"></div>
-        </div>
+
+      <template #default="{ table }">
+
+        <Table>
+          <TableHeader>
+            <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+              <TableHead v-for="header in headerGroup.headers" :key="header.id" :colSpan="header.colSpan">
+                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+                  :props="header.getContext()" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </template>
     </TSTable>
   </div>

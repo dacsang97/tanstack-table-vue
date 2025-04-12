@@ -4,37 +4,35 @@ import type {
   CellContext,
   RowData,
   ColumnDef as TStackColumnDef,
+  Table,
+  ColumnDef,
 } from '@tanstack/vue-table'
 import type { Slots } from 'vue'
 import capitalize from 'lodash.capitalize'
-import type {
-  ColumnDef,
-  AccessorColumnDef,
-  GroupColumnDef,
-  HeaderSlotProps,
-  CellSlotProps,
-  FooterSlotProps,
-} from './types'
 
 const getHeader = <TData extends RowData & object>(
   col: ColumnDef<TData>,
   slots: Readonly<Slots>,
   context: HeaderContext<TData, unknown>,
 ) => {
-  if (col.header) {
-    return col.header
-  }
+  const columnId = (col as any).accessorKey || col.id || ''
+  const slotName = `header-${columnId}`
 
-  const slotName = `header-${col.id}`
-
+  // Check slot first
   if (slots[slotName]) {
     return slots[slotName]({
       column: context.column,
       context,
-    } as HeaderSlotProps<TData>)
+    })
   }
 
-  return capitalize(col.id.split('-').join(' '))
+  // Then use header prop if provided
+  if (col.header) {
+    return col.header
+  }
+
+  // Finally fallback to capitalized id
+  return capitalize(columnId.split('-').join(' '))
 }
 
 const getFooter = <TData extends RowData & object>(
@@ -42,20 +40,21 @@ const getFooter = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: HeaderContext<TData, unknown>,
 ) => {
-  if (col.footer) {
-    return col.footer
-  }
+  const columnId = (col as any).accessorKey || col.id || ''
+  const slotName = `footer-${columnId}`
 
-  const slotName = `footer-${col.id}`
-
+  // Check slot first
   if (slots[slotName]) {
     return slots[slotName]({
       column: context.column,
       context,
-    } as FooterSlotProps<TData>)
+    })
   }
 
-  console.log(`footer for ${col.id} is undefined`)
+  // Then use footer prop if provided
+  if (col.footer) {
+    return col.footer
+  }
 
   return undefined
 }
@@ -65,51 +64,73 @@ const getCell = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: CellContext<TData, unknown>,
 ) => {
-  const slotName = `cell-${col.id}`
+  const columnId = (col as any).accessorKey || col.id || ''
+  const slotName = `cell-${columnId}`
 
+  // Check slot first
   if (slots[slotName]) {
     return slots[slotName]({
+      cell: context.cell,
       row: context.row,
-      context,
       value: context.getValue(),
-    } as CellSlotProps<TData>)
+    })
   }
 
-  return context.getValue()
+  // Then handle cell value
+  const value = context.getValue()
+  if (col.cell) {
+    return typeof col.cell === 'function' ? col.cell(context) : col.cell
+  }
+  return value !== undefined && value !== null ? value : '-'
 }
 
 export const processColumns = <TData extends RowData & object>(
   columnHelper: ColumnHelper<TData>,
   columns: ColumnDef<TData>[],
   slots: Readonly<Slots>,
+  table: Table<TData>,
 ): TStackColumnDef<TData>[] => {
-  return columns.map((col) => {
-    if (col.type === 'group') {
-      const groupCol = col as GroupColumnDef<TData>
+  return columns.map((col): TStackColumnDef<TData> => {
+    // Handle group columns by checking if columns property exists
+    if ('columns' in col && Array.isArray(col.columns)) {
       return columnHelper.group({
-        id: groupCol.id,
-        header: (context: HeaderContext<TData, unknown>) => getHeader(groupCol, slots, context),
-        footer: (context: HeaderContext<TData, unknown>) => getFooter(groupCol, slots, context),
-        columns: processColumns(columnHelper, groupCol.columns as ColumnDef<TData>[], slots),
-      }) as TStackColumnDef<TData>
-    }
-
-    if (col.type === 'display') {
-      return columnHelper.display({
-        id: col.id,
+        id: col.id || String(Math.random()),
         header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
-        footer: (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context),
-        cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
-      }) as TStackColumnDef<TData>
+        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
+        columns: processColumns(columnHelper, col.columns, slots, table),
+        meta: col.meta,
+      })
     }
 
-    // For accessor columns
-    const accessorCol = col as AccessorColumnDef
-    return columnHelper.accessor((row) => row[accessorCol.id as keyof TData], {
-      id: accessorCol.id,
+    // Handle accessor columns
+    const accessorCol = col as any
+    if (accessorCol.accessorKey) {
+      return columnHelper.accessor(accessorCol.accessorKey, {
+        id: accessorCol.id || accessorCol.accessorKey,
+        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
+        cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+        meta: col.meta,
+      })
+    }
+
+    if (accessorCol.accessorFn) {
+      return columnHelper.accessor(accessorCol.accessorFn, {
+        id: accessorCol.id || String(Math.random()),
+        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
+        cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+        meta: col.meta,
+      })
+    }
+
+    // Default case - treat as display column
+    return columnHelper.display({
+      id: col.id || String(Math.random()),
       header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
-      footer: (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context),
+      footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
       cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
-    }) as TStackColumnDef<TData>
+      meta: col.meta,
+    })
   })
 }
