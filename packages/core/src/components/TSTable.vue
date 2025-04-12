@@ -1,6 +1,5 @@
 <script lang="ts">
-import type { RowData, Table } from '@tanstack/vue-table'
-import type { ColumnDef } from '../shared'
+import type { ColumnDef, RowData, Table } from '@tanstack/vue-table'
 
 export interface TSTableProps<TData extends RowData & object> {
   columns: ColumnDef<TData>[]

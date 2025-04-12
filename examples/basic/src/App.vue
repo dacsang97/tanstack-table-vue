@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { TSTable, defineColumns } from 'tanstack-table-vue'
-import { FlexRender, getCoreRowModel, getSortedRowModel, type Column } from '@tanstack/vue-table'
+import { TSTable } from 'tanstack-table-vue'
+import { createColumnHelper, FlexRender, getCoreRowModel, getSortedRowModel, type Column } from '@tanstack/vue-table'
+import Table from './components/ui/table/Table.vue'
+import { TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from './components/ui/table'
+
 
 interface Person {
   firstName: string
@@ -62,44 +65,46 @@ function getStatusClass(status: string) {
   }
 }
 
-const columns = defineColumns<Person>([
-  {
+const columnHelper = createColumnHelper<Person>()
+
+const columns = [
+  columnHelper.group({
     id: 'name',
     header: 'Name',
     columns: [
-      {
+      columnHelper.accessor('firstName', {
         id: 'firstName',
-        header: 'First Name'
-      },
-      {
+      }),
+      columnHelper.accessor('lastName', {
         id: 'lastName',
-        header: 'Last Name'
-      },
-    ]
-  },
-  {
+      }),
+    ],
+  }),
+  columnHelper.group({
     id: 'info',
     header: 'Info',
     columns: [
-      {
+      columnHelper.accessor('age', {
         id: 'age',
-        header: 'Age'
-      },
-      {
-        id: 'visits',
-        header: 'Visits'
-      },
-    ]
-  },
-  {
-    id: 'status',
-    header: 'Status'
-  },
-  {
-    id: 'progress',
-    header: 'Profile Progress'
-  }
-])
+      }),
+      columnHelper.group({
+        id: 'moreInfo',
+        header: 'More Info',
+        columns: [
+          columnHelper.accessor('visits', {
+            id: 'visits',
+          }),
+          columnHelper.accessor('status', {
+            id: 'status',
+          }),
+          columnHelper.accessor('progress', {
+            id: 'progress',
+          }),
+        ],
+      }),
+    ],
+  }),
+]
 
 const tableOptions = {
   getSortedRowModel: getSortedRowModel(),
@@ -112,7 +117,6 @@ const tableOptions = {
     <h1 class="text-2xl font-bold mb-4">TSTable with Slots Example</h1>
     <TSTable :columns="columns" :data="defaultData" :tableOptions="tableOptions">
 
-      <!-- Sử dụng TSTable với slots -->
       <template #header-firstName="{ column }">
         <div class="flex items-center cursor-pointer" @click="column.toggleSorting()">
           <span class="font-bold">First Name</span>
@@ -127,41 +131,31 @@ const tableOptions = {
         </div>
       </template>
 
-      <!-- Định nghĩa slot cell -->
       <template #cell-status="{ value }">
         <span class="px-2 py-1 rounded text-xs font-medium inline-block" :class="getStatusClass(value)">
           {{ value }}
         </span>
       </template>
 
-      <!-- Main table layout -->
       <template #default="{ table }">
 
-        <table>
-          <thead>
-            <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-              <th v-for="header in headerGroup.headers" :key="header.id" :colSpan="header.colSpan">
+        <Table>
+          <TableHeader>
+            <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+              <TableHead v-for="header in headerGroup.headers" :key="header.id" :colSpan="header.colSpan">
                 <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
                   :props="header.getContext()" />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in table.getRowModel().rows" :key="row.id">
-              <td v-for="cell in row.getVisibleCells()" :key="cell.id">
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr v-for="footerGroup in table.getFooterGroups()" :key="footerGroup.id">
-              <th v-for="header in footerGroup.headers" :key="header.id" :colSpan="header.colSpan">
-                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.footer"
-                  :props="header.getContext()" />
-              </th>
-            </tr>
-          </tfoot>
-        </table>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </template>
     </TSTable>
   </div>
