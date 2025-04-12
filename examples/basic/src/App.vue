@@ -72,34 +72,22 @@ const columns = [
     id: 'name',
     header: 'Name',
     columns: [
-      columnHelper.accessor('firstName', {
-        id: 'firstName',
-      }),
-      columnHelper.accessor('lastName', {
-        id: 'lastName',
-      }),
+      columnHelper.accessor('firstName', {}),
+      columnHelper.accessor('lastName', {}),
     ],
   }),
   columnHelper.group({
     id: 'info',
     header: 'Info',
     columns: [
-      columnHelper.accessor('age', {
-        id: 'age',
-      }),
+      columnHelper.accessor('age', {}),
       columnHelper.group({
         id: 'moreInfo',
         header: 'More Info',
         columns: [
-          columnHelper.accessor('visits', {
-            id: 'visits',
-          }),
-          columnHelper.accessor('status', {
-            id: 'status',
-          }),
-          columnHelper.accessor('progress', {
-            id: 'progress',
-          }),
+          columnHelper.accessor('visits', {}),
+          columnHelper.accessor('status', {}),
+          columnHelper.accessor('progress', {}),
         ],
       }),
     ],

@@ -15,7 +15,8 @@ const getHeader = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: HeaderContext<TData, unknown>,
 ) => {
-  const slotName = `header-${col.id || ''}`
+  const columnId = (col as any).accessorKey || col.id || ''
+  const slotName = `header-${columnId}`
 
   // Check slot first
   if (slots[slotName]) {
@@ -31,7 +32,7 @@ const getHeader = <TData extends RowData & object>(
   }
 
   // Finally fallback to capitalized id
-  return capitalize((col.id || '').split('-').join(' '))
+  return capitalize(columnId.split('-').join(' '))
 }
 
 const getFooter = <TData extends RowData & object>(
@@ -39,7 +40,8 @@ const getFooter = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: HeaderContext<TData, unknown>,
 ) => {
-  const slotName = `footer-${col.id}`
+  const columnId = (col as any).accessorKey || col.id || ''
+  const slotName = `footer-${columnId}`
 
   // Check slot first
   if (slots[slotName]) {
@@ -62,7 +64,8 @@ const getCell = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: CellContext<TData, unknown>,
 ) => {
-  const slotName = `cell-${col.id || ''}`
+  const columnId = (col as any).accessorKey || col.id || ''
+  const slotName = `cell-${columnId}`
 
   // Check slot first
   if (slots[slotName]) {
@@ -88,34 +91,46 @@ export const processColumns = <TData extends RowData & object>(
   table: Table<TData>,
 ): TStackColumnDef<TData>[] => {
   return columns.map((col): TStackColumnDef<TData> => {
-    const baseColumnProps = {
-      id: col.id || String(Math.random()),
-      header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
-      footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
-      meta: col.meta,
-    }
-
     // Handle group columns by checking if columns property exists
     if ('columns' in col && Array.isArray(col.columns)) {
       return columnHelper.group({
-        ...baseColumnProps,
+        id: col.id || String(Math.random()),
+        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
         columns: processColumns(columnHelper, col.columns, slots, table),
+        meta: col.meta,
       })
     }
 
     // Handle accessor columns
     const accessorCol = col as any
-    if (accessorCol.accessorKey || accessorCol.accessorFn) {
-      return columnHelper.accessor(accessorCol.accessorKey || accessorCol.accessorFn, {
-        ...baseColumnProps,
+    if (accessorCol.accessorKey) {
+      return columnHelper.accessor(accessorCol.accessorKey, {
+        id: accessorCol.id || accessorCol.accessorKey,
+        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
         cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+        meta: col.meta,
+      })
+    }
+
+    if (accessorCol.accessorFn) {
+      return columnHelper.accessor(accessorCol.accessorFn, {
+        id: accessorCol.id || String(Math.random()),
+        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
+        cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+        meta: col.meta,
       })
     }
 
     // Default case - treat as display column
     return columnHelper.display({
-      ...baseColumnProps,
+      id: col.id || String(Math.random()),
+      header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
+      footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
       cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+      meta: col.meta,
     })
   })
 }
