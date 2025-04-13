@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { ColumnDef, RowData, Table } from '@tanstack/vue-table'
+import type { CellSlotProps, FooterSlotProps, HeaderSlotProps } from '../shared/types'
 
 export interface TSTableProps<TData extends RowData & object> {
   columns: ColumnDef<TData>[]
@@ -42,9 +43,9 @@ defineSlots<{
     table: Table<TData>;
   }) => any;
 
-  [key: `header-${string}`]: (props: any) => any;
-  [key: `cell-${string}`]: (props: any) => any;
-  [key: `footer-${string}`]: (props: any) => any;
+  [key: `header-${string}`]: (props: HeaderSlotProps<TData>) => any;
+  [key: `cell-${string}`]: (props: CellSlotProps<TData>) => any;
+  [key: `footer-${string}`]: (props: FooterSlotProps<TData>) => any;
 }>()
 </script>
 
