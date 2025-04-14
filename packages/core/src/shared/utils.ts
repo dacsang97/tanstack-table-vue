@@ -11,9 +11,9 @@ import type { Slots } from 'vue'
 import capitalize from 'lodash.capitalize'
 
 const getHeader = <TData extends RowData & object>(
-  col: ColumnDef<TData>,
+  col: ColumnDef<TData, any>,
   slots: Readonly<Slots>,
-  context: HeaderContext<TData, unknown>,
+  context: HeaderContext<TData, any>,
 ) => {
   const columnId = (col as any).accessorKey || col.id || ''
   const slotName = `header-${columnId}`
@@ -36,9 +36,9 @@ const getHeader = <TData extends RowData & object>(
 }
 
 const getFooter = <TData extends RowData & object>(
-  col: ColumnDef<TData>,
+  col: ColumnDef<TData, any>,
   slots: Readonly<Slots>,
-  context: HeaderContext<TData, unknown>,
+  context: HeaderContext<TData, any>,
 ) => {
   const columnId = (col as any).accessorKey || col.id || ''
   const slotName = `footer-${columnId}`
@@ -60,9 +60,9 @@ const getFooter = <TData extends RowData & object>(
 }
 
 const getCell = <TData extends RowData & object>(
-  col: ColumnDef<TData>,
+  col: ColumnDef<TData, any>,
   slots: Readonly<Slots>,
-  context: CellContext<TData, unknown>,
+  context: CellContext<TData, any>,
 ) => {
   const columnId = (col as any).accessorKey || col.id || ''
   const slotName = `cell-${columnId}`
@@ -86,18 +86,18 @@ const getCell = <TData extends RowData & object>(
 
 export const processColumns = <TData extends RowData & object>(
   columnHelper: ColumnHelper<TData>,
-  columns: ColumnDef<TData>[],
+  columns: ColumnDef<TData, any>[],
   slots: Readonly<Slots>,
   table: Table<TData>,
-): TStackColumnDef<TData>[] => {
-  return columns.map((col): TStackColumnDef<TData> => {
+): TStackColumnDef<TData, any>[] => {
+  return columns.map((col): TStackColumnDef<TData, any> => {
     // Handle group columns by checking if columns property exists
     if ('columns' in col && Array.isArray(col.columns)) {
       return columnHelper.group({
         id: col.id || String(Math.random()),
-        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
-        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
-        columns: processColumns(columnHelper, col.columns, slots, table),
+        header: (context: HeaderContext<TData, any>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, any>) => getFooter(col, slots, context) : undefined,
+        columns: processColumns(columnHelper, col.columns as ColumnDef<TData, any>[], slots, table),
         meta: col.meta,
       })
     }
@@ -107,9 +107,9 @@ export const processColumns = <TData extends RowData & object>(
     if (accessorCol.accessorKey) {
       return columnHelper.accessor(accessorCol.accessorKey, {
         id: accessorCol.id || accessorCol.accessorKey,
-        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
-        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
-        cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+        header: (context: HeaderContext<TData, any>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, any>) => getFooter(col, slots, context) : undefined,
+        cell: (context: CellContext<TData, any>) => getCell(col, slots, context),
         meta: col.meta,
       })
     }
@@ -117,9 +117,9 @@ export const processColumns = <TData extends RowData & object>(
     if (accessorCol.accessorFn) {
       return columnHelper.accessor(accessorCol.accessorFn, {
         id: accessorCol.id || String(Math.random()),
-        header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
-        footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
-        cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+        header: (context: HeaderContext<TData, any>) => getHeader(col, slots, context),
+        footer: col.footer ? (context: HeaderContext<TData, any>) => getFooter(col, slots, context) : undefined,
+        cell: (context: CellContext<TData, any>) => getCell(col, slots, context),
         meta: col.meta,
       })
     }
@@ -127,9 +127,9 @@ export const processColumns = <TData extends RowData & object>(
     // Default case - treat as display column
     return columnHelper.display({
       id: col.id || String(Math.random()),
-      header: (context: HeaderContext<TData, unknown>) => getHeader(col, slots, context),
-      footer: col.footer ? (context: HeaderContext<TData, unknown>) => getFooter(col, slots, context) : undefined,
-      cell: (context: CellContext<TData, unknown>) => getCell(col, slots, context),
+      header: (context: HeaderContext<TData, any>) => getHeader(col, slots, context),
+      footer: col.footer ? (context: HeaderContext<TData, any>) => getFooter(col, slots, context) : undefined,
+      cell: (context: CellContext<TData, any>) => getCell(col, slots, context),
       meta: col.meta,
     })
   })

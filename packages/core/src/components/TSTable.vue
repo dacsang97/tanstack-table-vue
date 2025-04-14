@@ -3,7 +3,7 @@ import type { ColumnDef, RowData, Table } from '@tanstack/vue-table'
 import type { CellSlotProps, FooterSlotProps, HeaderSlotProps } from '../shared/types'
 
 export interface TSTableProps<TData extends RowData & object> {
-  columns: ColumnDef<TData>[]
+  columns: ColumnDef<TData, any>[]
   data: TData[]
   tableOptions?: Record<string, any>
 }
@@ -21,7 +21,7 @@ const columnHelper = createColumnHelper<TData>()
 
 const processedColumns = computed(() => {
   const initialTable = useVueTable<TData>({
-    columns: props.columns as unknown as TStackColumnDef<TData>[],
+    columns: props.columns as TStackColumnDef<TData, any>[],
     data: props.data,
     getCoreRowModel: getCoreRowModel(),
     ...props.tableOptions
