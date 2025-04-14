@@ -1,1 +1,1 @@
-export { default as TSTable, type TSTableProps } from './TSTable.vue'
+export { default as TSTable, type TSTableProps, type TableOptions } from './TSTable.vue'

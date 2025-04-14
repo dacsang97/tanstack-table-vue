@@ -1,17 +1,19 @@
 <script lang="ts">
-import type { ColumnDef, RowData, Table } from '@tanstack/vue-table'
+import type { ColumnDef, RowData, Table, TableOptionsWithReactiveData } from '@tanstack/vue-table'
 import type { CellSlotProps, FooterSlotProps, HeaderSlotProps } from '../shared/types'
+
+export type TableOptions = Omit<TableOptionsWithReactiveData<any>, 'columns' | 'data' | 'getCoreRowModel'>
 
 export interface TSTableProps<TData extends RowData & object> {
   columns: ColumnDef<TData, any>[]
   data: TData[]
-  tableOptions?: Record<string, any>
+  tableOptions?: TableOptions
 }
 </script>
 
 <script setup lang="ts" generic="TData extends RowData & object">
-import { computed, useSlots } from 'vue'
-import { useVueTable, createColumnHelper, type ColumnDef as TStackColumnDef, getCoreRowModel } from '@tanstack/vue-table'
+import { computed, useSlots, watch } from 'vue'
+import { useVueTable, createColumnHelper, getCoreRowModel } from '@tanstack/vue-table'
 import { processColumns } from '../shared'
 
 const props = defineProps<TSTableProps<TData>>()
@@ -19,24 +21,37 @@ const props = defineProps<TSTableProps<TData>>()
 const slots = useSlots()
 const columnHelper = createColumnHelper<TData>()
 
+// Use memo pattern for expensive column processing
 const processedColumns = computed(() => {
-  const initialTable = useVueTable<TData>({
-    columns: props.columns as TStackColumnDef<TData, any>[],
-    data: props.data,
-    getCoreRowModel: getCoreRowModel(),
-    ...props.tableOptions
-  })
-  return processColumns(columnHelper, props.columns, slots, initialTable)
+  return processColumns(columnHelper, props.columns, slots)
 })
 
-const tableOptions = {
+// Create initial table options
+const initialTableOptions = {
   columns: processedColumns.value,
   data: props.data,
   getCoreRowModel: getCoreRowModel(),
   ...props.tableOptions
 }
 
-const table = useVueTable<TData>(tableOptions)
+// Initialize table with initial options
+const table = useVueTable<TData>(initialTableOptions)
+
+// Watch for data changes and update table efficiently
+watch(() => props.data, (newData) => {
+  table.setOptions((old) => ({
+    ...old,
+    data: newData,
+  }))
+}, { flush: 'sync' })
+
+// Watch columns separately to avoid unnecessary recalculations
+watch(processedColumns, (newColumns) => {
+  table.setOptions((old) => ({
+    ...old,
+    columns: newColumns,
+  }))
+}, { flush: 'sync' })
 
 defineSlots<{
   default: (props: {
