@@ -4,7 +4,6 @@ import type {
   CellContext,
   RowData,
   ColumnDef as TStackColumnDef,
-  Table,
   ColumnDef,
 } from '@tanstack/vue-table'
 import type { Slots } from 'vue'
@@ -88,7 +87,6 @@ export const processColumns = <TData extends RowData & object>(
   columnHelper: ColumnHelper<TData>,
   columns: ColumnDef<TData, any>[],
   slots: Readonly<Slots>,
-  table: Table<TData>,
 ): TStackColumnDef<TData, any>[] => {
   return columns.map((col): TStackColumnDef<TData, any> => {
     // Handle group columns by checking if columns property exists
@@ -97,7 +95,7 @@ export const processColumns = <TData extends RowData & object>(
         id: col.id || String(Math.random()),
         header: (context: HeaderContext<TData, any>) => getHeader(col, slots, context),
         footer: col.footer ? (context: HeaderContext<TData, any>) => getFooter(col, slots, context) : undefined,
-        columns: processColumns(columnHelper, col.columns as ColumnDef<TData, any>[], slots, table),
+        columns: processColumns(columnHelper, col.columns as ColumnDef<TData, any>[], slots),
         meta: col.meta,
       })
     }

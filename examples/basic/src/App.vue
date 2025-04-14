@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { TSTable } from 'tanstack-table-vue'
-import { createColumnHelper, FlexRender, getCoreRowModel, getSortedRowModel, type Column } from '@tanstack/vue-table'
+import { TSTable, type TableOptions } from 'tanstack-table-vue'
+import { createColumnHelper, FlexRender, getSortedRowModel, type Column } from '@tanstack/vue-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
 import { useQuery } from '@tanstack/vue-query'
+import { computed } from 'vue'
 
 
 interface Person {
@@ -49,6 +50,13 @@ const { data, isLoading } = useQuery({
   },
 })
 
+const persons = computed(() => {
+  if (data.value) {
+    return data.value
+  }
+  return []
+})
+
 function getSortIcon(column: Column<Person>) {
   if (!column.getCanSort?.()) return null
 
@@ -90,7 +98,7 @@ const columns = [
     columns: [
       columnHelper.group({
         id: 'moreInfo',
-        header: 'More Info',
+        header: 'More Info ',
         columns: [
           columnHelper.accessor('visits', {}),
           columnHelper.accessor('status', {}),
@@ -105,16 +113,15 @@ const columns = [
   })
 ]
 
-const tableOptions = {
+const tableOptions: TableOptions = {
   getSortedRowModel: getSortedRowModel(),
-  getCoreRowModel: getCoreRowModel(),
 }
 </script>
 
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">TSTable with Slots Example</h1>
-    <TSTable :columns="columns" :data="defaultData" :tableOptions="tableOptions">
+    <TSTable :columns="columns" :data="persons" :tableOptions="tableOptions">
 
       <template #header-firstName="{ column }">
         <div class="flex items-center cursor-pointer" @click="column.toggleSorting()">
