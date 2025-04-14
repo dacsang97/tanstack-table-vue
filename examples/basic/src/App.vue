@@ -2,6 +2,7 @@
 import { TSTable } from 'tanstack-table-vue'
 import { createColumnHelper, FlexRender, getCoreRowModel, getSortedRowModel, type Column } from '@tanstack/vue-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
+import { useQuery } from '@tanstack/vue-query'
 
 
 interface Person {
@@ -40,6 +41,14 @@ const defaultData: Person[] = [
   },
 ]
 
+const { data, isLoading } = useQuery({
+  queryKey: ['people'],
+  queryFn: async () => {
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    return defaultData
+  },
+})
+
 function getSortIcon(column: Column<Person>) {
   if (!column.getCanSort?.()) return null
 
@@ -66,20 +75,19 @@ function getStatusClass(status: string) {
 
 const columnHelper = createColumnHelper<Person>()
 
+// Create columns with type assertion
 const columns = [
-  columnHelper.group({
-    id: 'name',
-    header: 'Name',
-    columns: [
-      columnHelper.accessor('firstName', {}),
-      columnHelper.accessor('lastName', {}),
-    ],
+  columnHelper.display({
+    id: 'avatar',
+    header: 'Avatar',
   }),
+  columnHelper.accessor('firstName', {}),
+  columnHelper.accessor('lastName', {}),
+  columnHelper.accessor('age', {}),
   columnHelper.group({
     id: 'info',
     header: 'Info',
     columns: [
-      columnHelper.accessor('age', {}),
       columnHelper.group({
         id: 'moreInfo',
         header: 'More Info',
@@ -91,6 +99,10 @@ const columns = [
       }),
     ],
   }),
+  columnHelper.display({
+    id: 'actions',
+    header: 'Actions',
+  })
 ]
 
 const tableOptions = {
@@ -136,10 +148,20 @@ const tableOptions = {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+            <TableRow v-if="isLoading" v-for="i in 5" :key="`skeleton-${i}`">
+              <TableCell v-for="j in table.getAllLeafColumns().length" :key="`cell-${i}-${j}`" class="py-3">
+                <div class="h-5 w-full bg-muted rounded animate-pulse"></div>
               </TableCell>
+            </TableRow>
+            <template v-else-if="table.getRowModel().rows?.length">
+              <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
+                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                </TableCell>
+              </TableRow>
+            </template>
+            <TableRow v-else>
+              <TableCell colspan="100%" class="h-24 text-center">No results.</TableCell>
             </TableRow>
           </TableBody>
         </Table>
