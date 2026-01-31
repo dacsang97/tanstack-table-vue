@@ -12,7 +12,7 @@ export interface TSTableProps<TData extends RowData & object> {
 </script>
 
 <script setup lang="ts" generic="TData extends RowData & object">
-import { computed, useSlots, watch } from 'vue'
+import { computed, useSlots } from 'vue'
 import { useVueTable, createColumnHelper, getCoreRowModel } from '@tanstack/vue-table'
 import { processColumns } from '../shared'
 
@@ -26,40 +26,18 @@ const processedColumns = computed(() => {
   return processColumns(columnHelper, props.columns, slots)
 })
 
-// Create initial table options
-const initialTableOptions = {
-  columns: processedColumns.value,
-  data: props.data,
+// Initialize table with reactive getters for data and columns
+// This is the recommended approach for TanStack Table Vue v8.20.0+
+const table = useVueTable<TData>({
+  get columns() {
+    return processedColumns.value
+  },
+  get data() {
+    return props.data
+  },
   getCoreRowModel: getCoreRowModel(),
   ...props.tableOptions,
-}
-
-// Initialize table with initial options
-const table = useVueTable<TData>(initialTableOptions)
-
-// Watch for data changes and update table efficiently
-watch(
-  () => props.data,
-  (newData) => {
-    table.setOptions((old) => ({
-      ...old,
-      data: newData,
-    }))
-  },
-  { flush: 'sync' },
-)
-
-// Watch columns separately to avoid unnecessary recalculations
-watch(
-  processedColumns,
-  (newColumns) => {
-    table.setOptions((old) => ({
-      ...old,
-      columns: newColumns,
-    }))
-  },
-  { flush: 'sync' },
-)
+})
 
 defineSlots<{
   default: (props: { table: Table<TData> }) => any
