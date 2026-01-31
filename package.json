@@ -19,7 +19,7 @@
     "lint:fix": "oxlint --fix"
   },
   "devDependencies": {
-    "bumpp": "^10.1.0",
+    "bumpp": "^10.4.0",
     "oxfmt": "^0.27.0",
     "oxlint": "^1.42.0"
   },
