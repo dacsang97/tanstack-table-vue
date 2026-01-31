@@ -1,6 +1,6 @@
 {
   "name": "@dacsang97/tanstack-table-vue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Vue TanStack Table is a wrapper library that simplifies using TanStack Table",
   "license": "MIT",
