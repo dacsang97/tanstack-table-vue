@@ -5,9 +5,15 @@ import type {
   RowData,
   ColumnDef as TStackColumnDef,
   ColumnDef,
+  Updater,
 } from '@tanstack/vue-table'
-import type { Slots } from 'vue'
+import type { Ref, Slots } from 'vue'
 import capitalize from 'lodash.capitalize'
+
+/** Helper to apply TanStack Table updater functions to Vue refs */
+export function valueUpdater<T>(updaterOrValue: Updater<T>, ref: Ref<T>): void {
+  ref.value = typeof updaterOrValue === 'function' ? (updaterOrValue as (old: T) => T)(ref.value) : updaterOrValue
+}
 
 const getHeader = <TData extends RowData & object>(
   col: ColumnDef<TData, any>,
