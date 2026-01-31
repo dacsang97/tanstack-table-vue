@@ -1,21 +1,27 @@
 {
   "name": "@dacsang97/tanstack-table-vue",
   "version": "0.0.8",
-  "type": "module",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
   "description": "Vue TanStack Table is a wrapper library that simplifies using TanStack Table",
-  "scripts": {
-    "build": "pnpm run --filter tanstack-table-vue build",
-    "bumpp": "bumpp package.json packages/*/package.json",
-    "pub:release": "cd packages/core && pnpm pub:release"
-  },
+  "license": "MIT",
+  "author": "dacsang97",
   "workspaces": [
     "packages/*"
   ],
-  "author": "dacsang97",
-  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run --filter tanstack-table-vue build",
+    "bumpp": "bumpp package.json packages/*/package.json",
+    "pub:release": "cd packages/core && pnpm pub:release",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix"
+  },
   "devDependencies": {
-    "bumpp": "^10.1.0"
-  }
+    "bumpp": "^10.1.0",
+    "oxfmt": "^0.27.0",
+    "oxlint": "^1.42.0"
+  },
+  "packageManager": "pnpm@10.28.0"
 }

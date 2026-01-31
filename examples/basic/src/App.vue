@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { TSTable, type TableOptions } from 'tanstack-table-vue'
-import { createColumnHelper, FlexRender, getSortedRowModel, type Column } from '@tanstack/vue-table'
+import { TSTable } from 'tanstack-table-vue'
+import { useTableSorting } from 'tanstack-table-vue/plugins'
+import { createColumnHelper, FlexRender, type Column } from '@tanstack/vue-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
-
 
 interface Person {
   firstName: string
@@ -45,17 +45,19 @@ const defaultData: Person[] = [
 const { data, isLoading } = useQuery({
   queryKey: ['people'],
   queryFn: async () => {
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000))
     return defaultData
   },
 })
 
-const persons = computed(() => {
-  if (data.value) {
-    return data.value
-  }
-  return []
-})
+const persons = computed(() => data.value ?? [])
+
+// Use the sorting composable from plugins
+const { sortingOptions } = useTableSorting()
+
+const tableOptions = computed(() => ({
+  ...sortingOptions.value,
+}))
 
 function getSortIcon(column: Column<Person>) {
   if (!column.getCanSort?.()) return null
@@ -83,15 +85,20 @@ function getStatusClass(status: string) {
 
 const columnHelper = createColumnHelper<Person>()
 
-// Create columns with type assertion
 const columns = [
   columnHelper.display({
     id: 'avatar',
     header: 'Avatar',
   }),
-  columnHelper.accessor('firstName', {}),
-  columnHelper.accessor('lastName', {}),
-  columnHelper.accessor('age', {}),
+  columnHelper.accessor('firstName', {
+    meta: { enableSorting: true },
+  }),
+  columnHelper.accessor('lastName', {
+    meta: { enableSorting: true },
+  }),
+  columnHelper.accessor('age', {
+    meta: { size: 80 },
+  }),
   columnHelper.group({
     id: 'info',
     header: 'Info',
@@ -110,19 +117,14 @@ const columns = [
   columnHelper.display({
     id: 'actions',
     header: 'Actions',
-  })
+  }),
 ]
-
-const tableOptions: TableOptions = {
-  getSortedRowModel: getSortedRowModel(),
-}
 </script>
 
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">TSTable with Slots Example</h1>
     <TSTable :columns="columns" :data="persons" :tableOptions="tableOptions">
-
       <template #header-firstName="{ column }">
         <div class="flex items-center cursor-pointer" @click="column.toggleSorting()">
           <span class="font-bold">First Name</span>
@@ -144,13 +146,15 @@ const tableOptions: TableOptions = {
       </template>
 
       <template #default="{ table }">
-
         <Table>
           <TableHeader>
             <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
               <TableHead v-for="header in headerGroup.headers" :key="header.id" :colSpan="header.colSpan">
-                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                  :props="header.getContext()" />
+                <FlexRender
+                  v-if="!header.isPlaceholder"
+                  :render="header.column.columnDef.header"
+                  :props="header.getContext()"
+                />
               </TableHead>
             </TableRow>
           </TableHeader>

@@ -1,91 +1,120 @@
-# @tanstack-table-vue/core
+# tanstack-table-vue
 
-Core package for TanStack Table Vue integration.
+Vue 3 wrapper for TanStack Table with slot-based rendering and headless composables.
 
-## Overview
+## Installation
 
-This package contains the core functionality for integrating TanStack Table with Vue.js. It provides:
+```bash
+pnpm add tanstack-table-vue
+```
 
-- TSTable component for rendering tables
-- Column processing utilities
-- Type definitions and helpers
-- Slot management system
-
-## Components
-
-### TSTable
-
-The main component that renders the table structure. It accepts:
-
-- `columns`: Column definitions
-- `data`: Table data
-- `tableOptions`: TanStack Table options
+## Core — `TSTable` Component
 
 ```vue
-<TSTable :columns="columns" :data="data" :tableOptions="tableOptions">
-  <!-- Slots for customization -->
+<script setup lang="ts">
+import { TSTable } from 'tanstack-table-vue'
+import type { ColumnDef } from '@tanstack/vue-table'
+
+interface User {
+  name: string
+  age: number
+}
+
+const columns: ColumnDef<User, any>[] = [{ accessorKey: 'name' }, { accessorKey: 'age' }]
+const data: User[] = [{ name: 'Alice', age: 30 }]
+</script>
+
+<template>
+  <TSTable :columns="columns" :data="data" v-slot="{ table }">
+    <!-- render table using the table instance -->
+  </TSTable>
+</template>
+```
+
+### Slots
+
+- `#header-{columnId}` — custom header: `{ column, context }`
+- `#cell-{columnId}` — custom cell: `{ row, value, context }`
+- `#footer-{columnId}` — custom footer: `{ column, context }`
+
+### Typed Column Meta
+
+Column `meta` is typed via `TSTableColumnMeta`:
+
+```ts
+const columns: ColumnDef<User, any>[] = [
+  {
+    accessorKey: 'name',
+    meta: { size: 200, enableSorting: true, headerClass: 'font-bold' },
+  },
+]
+```
+
+Available meta fields: `size`, `style`, `enableSorting`, `headerClass`, `cellClass`.
+
+## Plugins — Headless Composables
+
+Import from the `tanstack-table-vue/plugins` subpath:
+
+```ts
+import { usePaginationState, useTableSorting, useTableSelection } from 'tanstack-table-vue/plugins'
+```
+
+### `usePaginationState(options?)`
+
+Manages 1-based page state and provides TanStack-compatible pagination options.
+
+```ts
+const { page, pageSize, paginationState, paginationOptions, setPage, setPageSize, resetPagination } =
+  usePaginationState({ defaultPage: 1, defaultPageSize: 10 })
+```
+
+Spread `paginationOptions.value` into your `tableOptions` prop.
+
+### `useTableSorting(defaultSorting?)`
+
+Manages sorting state with a pre-configured sorted row model.
+
+```ts
+const { sorting, sortingOptions, clearSorting } = useTableSorting([{ id: 'name', desc: false }])
+```
+
+### `useTableSelection()`
+
+Manages row selection state.
+
+```ts
+const { rowSelection, selectionOptions, selectedCount, clearSelection } = useTableSelection()
+```
+
+### Combining Plugins
+
+```ts
+const { paginationOptions } = usePaginationState()
+const { sortingOptions } = useTableSorting()
+const { selectionOptions } = useTableSelection()
+
+const tableOptions = computed(() => ({
+  ...paginationOptions.value,
+  ...sortingOptions.value,
+  ...selectionOptions.value,
+}))
+```
+
+```vue
+<TSTable :columns="columns" :data="data" :tableOptions="tableOptions" v-slot="{ table }">
+  <!-- render -->
 </TSTable>
 ```
 
 ## Utilities
 
-### Column Processing
-
-The package includes utilities for processing columns and managing slots:
-
-- `processColumns`: Converts column definitions to TanStack Table format
-- `getHeader`, `getCell`, `getFooter`: Slot management functions
-
-### Types
-
-```typescript
-interface TSTableProps<TData extends RowData & object> {
-  columns: ColumnDef<TData>[]
-  data: TData[]
-  tableOptions?: Record<string, any>
-}
+```ts
+import { valueUpdater, processColumns } from 'tanstack-table-vue'
 ```
 
-## Usage with Slots
-
-The package provides a flexible slot system:
-
-```vue
-<TSTable :columns="columns" :data="data">
-  <!-- Header slot -->
-  <template #header-columnId="{ column }">
-    Custom Header
-  </template>
-
-  <!-- Cell slot -->
-  <template #cell-columnId="{ value, row }">
-    Custom Cell
-  </template>
-
-  <!-- Footer slot -->
-  <template #footer-columnId="{ column }">
-    Custom Footer
-  </template>
-</TSTable>
-```
-
-## Internal Architecture
-
-The package uses a slot-based system instead of render functions, making it more Vue-idiomatic. Key features:
-
-- Automatic header generation from accessorKey
-- Flexible slot naming based on column IDs
-- Support for nested column groups
-- Integration with TanStack Table's sorting, filtering, and other features
-
-## Contributing
-
-When contributing to this package, please:
-
-1. Maintain type safety
-2. Follow Vue.js best practices
-3. Update tests for any new functionality
-4. Document any public APIs
+- `valueUpdater(updaterOrValue, ref)` — apply TanStack updater functions to Vue refs
+- `processColumns(columnHelper, columns, slots)` — process column definitions with slot integration
 
 ## License
 
