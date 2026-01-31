@@ -30,7 +30,7 @@ describe('processColumns', () => {
     const columns = [{ accessorKey: 'name' as const }]
     const result = processColumns(columnHelper, columns, emptySlots)
     expect(result).toHaveLength(1)
-    expect(result[0].id).toBe('name')
+    expect(result[0]!.id).toBe('name')
   })
 
   it('detects accessor column with accessorFn', () => {
@@ -42,14 +42,14 @@ describe('processColumns', () => {
     ]
     const result = processColumns(columnHelper, columns, emptySlots)
     expect(result).toHaveLength(1)
-    expect(result[0].id).toBe('fullName')
+    expect(result[0]!.id).toBe('fullName')
   })
 
   it('detects display column', () => {
     const columns = [{ id: 'actions' }]
     const result = processColumns(columnHelper, columns, emptySlots)
     expect(result).toHaveLength(1)
-    expect(result[0].id).toBe('actions')
+    expect(result[0]!.id).toBe('actions')
   })
 
   it('detects group column with nested columns', () => {
@@ -62,8 +62,7 @@ describe('processColumns', () => {
     ]
     const result = processColumns(columnHelper, columns, emptySlots)
     expect(result).toHaveLength(1)
-    expect(result[0].id).toBe('info')
-    // Group columns contain nested columns
+    expect(result[0]!.id).toBe('info')
     expect((result[0] as any).columns).toHaveLength(2)
   })
 
@@ -75,6 +74,6 @@ describe('processColumns', () => {
       },
     ]
     const result = processColumns(columnHelper, columns, emptySlots)
-    expect(result[0].meta).toEqual({ size: 200, enableSorting: true })
+    expect(result[0]!.meta).toEqual({ size: 200, enableSorting: true })
   })
 })
