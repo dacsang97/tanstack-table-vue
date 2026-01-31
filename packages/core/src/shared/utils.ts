@@ -20,7 +20,7 @@ const getHeader = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: HeaderContext<TData, any>,
 ) => {
-  const columnId = (col as any).accessorKey || col.id || ''
+  const columnId = col.id || (col as any).accessorKey || ''
   const slotName = `header-${columnId}`
 
   // Check slot first
@@ -45,7 +45,7 @@ const getFooter = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: HeaderContext<TData, any>,
 ) => {
-  const columnId = (col as any).accessorKey || col.id || ''
+  const columnId = col.id || (col as any).accessorKey || ''
   const slotName = `footer-${columnId}`
 
   // Check slot first
@@ -69,7 +69,7 @@ const getCell = <TData extends RowData & object>(
   slots: Readonly<Slots>,
   context: CellContext<TData, any>,
 ) => {
-  const columnId = (col as any).accessorKey || col.id || ''
+  const columnId = col.id || (col as any).accessorKey || ''
   const slotName = `cell-${columnId}`
 
   // Check slot first
