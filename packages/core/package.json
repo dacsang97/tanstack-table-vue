@@ -50,6 +50,6 @@
     "typescript": "~5.9.3",
     "unplugin-vue": "latest",
     "vitest": "latest",
-    "vue-tsc": "^2.2.4"
+    "vue-tsc": "^3.2.4"
   }
 }
