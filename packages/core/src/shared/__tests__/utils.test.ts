@@ -121,7 +121,13 @@ describe('slot name resolution (id takes priority over accessorKey)', () => {
       const result = processColumns(columnHelper, columns, slots)
 
       const cellFn = result[0]!.cell as (context: CellContext<TestRow, any>) => any
-      const output = cellFn(createMockCellContext('http://example.com/video.mp4', { name: 'Test', age: 25, video_url: 'http://example.com/video.mp4' }))
+      const output = cellFn(
+        createMockCellContext('http://example.com/video.mp4', {
+          name: 'Test',
+          age: 25,
+          video_url: 'http://example.com/video.mp4',
+        }),
+      )
 
       expect(previewSlot).toHaveBeenCalled()
       expect(videoUrlSlot).not.toHaveBeenCalled()
@@ -145,7 +151,11 @@ describe('slot name resolution (id takes priority over accessorKey)', () => {
       const previewCellFn = result[0]!.cell as (context: CellContext<TestRow, any>) => any
       const typeCellFn = result[1]!.cell as (context: CellContext<TestRow, any>) => any
 
-      const mockContext = createMockCellContext('http://example.com/video.mp4', { name: 'Test', age: 25, video_url: 'http://example.com/video.mp4' })
+      const mockContext = createMockCellContext('http://example.com/video.mp4', {
+        name: 'Test',
+        age: 25,
+        video_url: 'http://example.com/video.mp4',
+      })
 
       previewCellFn(mockContext)
       expect(previewSlot).toHaveBeenCalled()
