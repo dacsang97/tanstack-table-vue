@@ -55,8 +55,8 @@ importers:
         specifier: ^22.14.0
         version: 22.14.0
       '@vitejs/plugin-vue':
-        specifier: ^5.2.1
-        version: 5.2.3(vite@7.3.1(@types/node@22.14.0)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))
+        specifier: ^6.0.3
+        version: 6.0.3(vite@7.3.1(@types/node@22.14.0)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))
       '@vue/tsconfig':
         specifier: ^0.8.1
         version: 0.8.1(typescript@5.9.3)(vue@3.5.13(typescript@5.9.3))
@@ -92,8 +92,8 @@ importers:
         specifier: ^22.14.0
         version: 22.14.0
       '@vitejs/plugin-vue':
-        specifier: ^5.2.1
-        version: 5.2.3(vite@8.0.0-beta.11(@types/node@22.14.0)(esbuild@0.27.2)(jiti@2.6.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))
+        specifier: ^6.0.3
+        version: 6.0.3(vite@8.0.0-beta.11(@types/node@22.14.0)(esbuild@0.27.2)(jiti@2.6.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))
       '@vue/test-utils':
         specifier: latest
         version: 2.4.6
@@ -604,6 +604,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@rolldown/pluginutils@1.0.0-beta.53':
+    resolution: {integrity: sha512-vENRlFU4YbrwVqNDZ7fLvy+JR1CRkyr01jhSiDpE1u6py3OMzQfztQU2jxykW3ALNxO4kSlqIDeYyD0Y9RcQeQ==}
+
   '@rolldown/pluginutils@1.0.0-rc.1':
     resolution: {integrity: sha512-UTBjtTxVOhodhzFVp/ayITaTETRHPUPYZPXQe0WU0wOgxghMojXxYjOiPOauKIYNWJAWS2fd7gJgGQK8GU8vDA==}
 
@@ -872,11 +875,11 @@ packages:
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
-  '@vitejs/plugin-vue@5.2.3':
-    resolution: {integrity: sha512-IYSLEQj4LgZZuoVpdSUCw3dIynTWQgPlaRP6iAvMle4My0HdYwr5g5wQAfwOeHQBmYwEkqF70nRpSilr6PoUDg==}
-    engines: {node: ^18.0.0 || >=20.0.0}
+  '@vitejs/plugin-vue@6.0.3':
+    resolution: {integrity: sha512-TlGPkLFLVOY3T7fZrwdvKpjprR3s4fxRln0ORDo1VQ7HHyxJwTlrjKU3kpVWTlaAjIEuCTokmjkZnr8Tpc925w==}
+    engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
-      vite: ^5.0.0 || ^6.0.0
+      vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
       vue: ^3.2.25
 
   '@vitest/expect@4.0.18':
@@ -2194,6 +2197,8 @@ snapshots:
   '@rolldown/binding-win32-x64-msvc@1.0.0-rc.2':
     optional: true
 
+  '@rolldown/pluginutils@1.0.0-beta.53': {}
+
   '@rolldown/pluginutils@1.0.0-rc.1': {}
 
   '@rolldown/pluginutils@1.0.0-rc.2': {}
@@ -2389,13 +2394,15 @@ snapshots:
     dependencies:
       '@types/node': 22.14.0
 
-  '@vitejs/plugin-vue@5.2.3(vite@7.3.1(@types/node@22.14.0)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))':
+  '@vitejs/plugin-vue@6.0.3(vite@7.3.1(@types/node@22.14.0)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))':
     dependencies:
+      '@rolldown/pluginutils': 1.0.0-beta.53
       vite: 7.3.1(@types/node@22.14.0)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
       vue: 3.5.13(typescript@5.9.3)
 
-  '@vitejs/plugin-vue@5.2.3(vite@8.0.0-beta.11(@types/node@22.14.0)(esbuild@0.27.2)(jiti@2.6.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))':
+  '@vitejs/plugin-vue@6.0.3(vite@8.0.0-beta.11(@types/node@22.14.0)(esbuild@0.27.2)(jiti@2.6.1)(yaml@2.8.2))(vue@3.5.13(typescript@5.9.3))':
     dependencies:
+      '@rolldown/pluginutils': 1.0.0-beta.53
       vite: 8.0.0-beta.11(@types/node@22.14.0)(esbuild@0.27.2)(jiti@2.6.1)(yaml@2.8.2)
       vue: 3.5.13(typescript@5.9.3)
 
